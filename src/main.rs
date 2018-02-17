@@ -1,5 +1,51 @@
 use std::env;
 use std::process;
+use std::error;
+use std::fmt;
+use std::num;
+
+#[derive(Debug)]
+enum Error {
+    CharParse,
+    OutOfBounds,
+    ParseFloat(num::ParseFloatError),
+}
+
+impl fmt::Display for Error {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            Error::CharParse => write!(f, "Could not parse amount as a char"),
+            Error::OutOfBounds => write!(f, "Value out of bounds"),
+            Error::ParseFloat(ref err) => err.fmt(f),
+        }
+    }
+}
+
+impl error::Error for Error {
+    fn description(&self) -> &str {
+        match *self {
+            Error::CharParse => "Could not parse amount as a char",
+            Error::OutOfBounds => "Must be a floating point number between 0 and 1",
+            Error::ParseFloat(ref err) => err.description(),
+        }
+    }
+
+    fn cause(&self) -> Option<&error::Error> {
+        match *self {
+            Error::CharParse => None,
+            Error::OutOfBounds => None,
+            Error::ParseFloat(ref err) => Some(err),
+        }
+    }
+}
+
+impl From<num::ParseFloatError> for Error {
+    fn from(err: num::ParseFloatError) -> Self {
+        Error::ParseFloat(err)
+    }
+}
+
+type Result<T> = std::result::Result<T, Error>;
 
 #[cfg(test)]
 mod tests {
@@ -7,41 +53,53 @@ mod tests {
 
     #[test]
     fn test_graph() {
-        assert_eq!(' ', graph(0.0 / 8.0));
-        assert_eq!('\u{2581}', graph(1.0 / 8.0));
-        assert_eq!('\u{2582}', graph(2.0 / 8.0));
-        assert_eq!('\u{2583}', graph(3.0 / 8.0));
-        assert_eq!('\u{2584}', graph(4.0 / 8.0));
-        assert_eq!('\u{2585}', graph(5.0 / 8.0));
-        assert_eq!('\u{2586}', graph(6.0 / 8.0));
-        assert_eq!('\u{2587}', graph(7.0 / 8.0));
-        assert_eq!('\u{2588}', graph(8.0 / 8.0));
+        assert_eq!(' ', graph("0").unwrap());
+        assert_eq!('\u{2581}', graph("0.125").unwrap());
+        assert_eq!('\u{2582}', graph("0.25").unwrap());
+        assert_eq!('\u{2583}', graph("0.375").unwrap());
+        assert_eq!('\u{2584}', graph("0.5").unwrap());
+        assert_eq!('\u{2585}', graph("0.625").unwrap());
+        assert_eq!('\u{2586}', graph("0.75").unwrap());
+        assert_eq!('\u{2587}', graph("0.875").unwrap());
+        assert_eq!('\u{2588}', graph("1").unwrap());
     }
 }
 
-fn graph(amount: f64) -> char {
+fn graph(amount: &str) -> Result<char> {
+    let amount: f64 = amount.parse()?;
+
     if amount > 1.0 || amount < 0.0 {
-        eprintln!("Must be a number between 0 and 1");
-        process::exit(1);
+        return Err(Error::OutOfBounds);
     };
 
     if amount == 0.0 {
-        ' '
+        Ok(' ')
     } else {
-        std::char::from_u32(0x2580u32 + (amount * 8f64).round() as u32).unwrap()
+        std::char::from_u32(0x2580u32 + (amount * 8f64).round() as u32).ok_or(Error::CharParse)
     }
 }
 
 fn main() {
-    if let Some(arg) = env::args().nth(1) {
-        if let Ok(n) = arg.parse::<f64>() {
-            print!("{}", graph(n));
-        } else {
-            eprintln!("Could not parse as a floating point number");
-            process::exit(1);
-        }
-    } else {
-        eprintln!("Pass a decimal number between 0 and 1");
+    if let Err(e) = run() {
+        eprintln!("{}", e);
         process::exit(1);
     }
+}
+
+fn run() -> Result<()> {
+    let mut args = env::args();
+
+    // skip program name
+    args.next();
+
+    if let Some(arg) = args.next() {
+        match arg.as_str() {
+            "-h" | "-help" | "--help" | "--usage" => {
+                println!("Usage: vgraph [OPTION]... NUMBER");
+            }
+            _ => print!("{}", graph(&arg)?),
+        }
+    };
+
+    Ok(())
 }
