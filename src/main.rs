@@ -63,6 +63,28 @@ mod tests {
         assert_eq!('\u{2587}', graph("0.875").unwrap());
         assert_eq!('\u{2588}', graph("1").unwrap());
     }
+
+    #[test]
+    fn amount_very_close_to_zero() {
+        assert_eq!(' ', graph("0.014705882352941176").unwrap());
+    }
+
+    #[test]
+    fn amount_very_close_to_one() {
+        assert_eq!('\u{2588}', graph("0.985294117647058824").unwrap());
+    }
+
+    #[test]
+    #[should_panic]
+    fn amount_below_allowed_range() {
+        graph("-1").unwrap();
+    }
+
+    #[test]
+    #[should_panic]
+    fn amount_above_allowed_range() {
+        graph("2").unwrap();
+    }
 }
 
 fn graph(amount: &str) -> Result<char> {
