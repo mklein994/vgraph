@@ -66,16 +66,16 @@ mod tests {
 }
 
 fn graph(amount: &str) -> Result<char> {
-    let amount: f64 = amount.parse()?;
+    let amount = (amount.parse::<f64>()? * 8f64).round() as u32;
 
-    if amount > 1.0 || amount < 0.0 {
+    if amount > 8 {
         return Err(Error::OutOfBounds);
     };
 
-    if amount == 0.0 {
+    if amount == 0 {
         Ok(' ')
     } else {
-        std::char::from_u32(0x2580u32 + (amount * 8f64).round() as u32).ok_or(Error::CharParse)
+        std::char::from_u32(0x2580u32 + amount).ok_or(Error::CharParse)
     }
 }
 
