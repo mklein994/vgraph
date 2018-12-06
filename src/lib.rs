@@ -46,7 +46,7 @@ impl From<num::ParseFloatError> for Error {
 pub type Result<T> = std::result::Result<T, Error>;
 
 fn graph(amount: &str) -> Result<char> {
-    let amount = (amount.parse::<f64>()? * 8f64).round() as u32;
+    let amount = (amount.parse::<f64>()? * 8_f64).round() as u32;
 
     if amount > 8 {
         return Err(Error::OutOfBounds);
@@ -55,7 +55,7 @@ fn graph(amount: &str) -> Result<char> {
     if amount == 0 {
         Ok(' ')
     } else {
-        std::char::from_u32(0x2580u32 + amount).ok_or(Error::CharParse)
+        std::char::from_u32(0x2580_u32 + amount).ok_or(Error::CharParse)
     }
 }
 
