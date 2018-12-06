@@ -2,5 +2,6 @@
 name = "vgraph"
 version = "0.1.0"
 authors = ["Matthew Klein <mklein994@gmail.com>"]
+edition = "2018"
 
 [dependencies]

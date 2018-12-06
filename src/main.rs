@@ -12,7 +12,7 @@ enum Error {
 }
 
 impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match *self {
             Error::CharParse => write!(f, "Could not parse amount as a char"),
             Error::OutOfBounds => write!(f, "Value out of bounds"),
@@ -30,7 +30,7 @@ impl error::Error for Error {
         }
     }
 
-    fn cause(&self) -> Option<&error::Error> {
+    fn cause(&self) -> Option<&dyn error::Error> {
         match *self {
             Error::CharParse => None,
             Error::OutOfBounds => None,
