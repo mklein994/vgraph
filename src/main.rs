@@ -46,6 +46,45 @@ impl From<num::ParseFloatError> for Error {
 
 type Result<T> = std::result::Result<T, Error>;
 
+fn graph(amount: &str) -> Result<char> {
+    let amount = (amount.parse::<f64>()? * 8f64).round() as u32;
+
+    if amount > 8 {
+        return Err(Error::OutOfBounds);
+    };
+
+    if amount == 0 {
+        Ok(' ')
+    } else {
+        std::char::from_u32(0x2580u32 + amount).ok_or(Error::CharParse)
+    }
+}
+
+fn main() {
+    if let Err(e) = run() {
+        eprintln!("{}", e);
+        process::exit(1);
+    }
+}
+
+fn run() -> Result<()> {
+    let mut args = env::args();
+
+    // skip program name
+    args.next();
+
+    if let Some(arg) = args.next() {
+        match arg.as_str() {
+            "-h" | "-help" | "--help" | "--usage" => {
+                println!("Usage: vgraph [OPTION]... NUMBER");
+            }
+            _ => print!("{}", graph(&arg)?),
+        }
+    };
+
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -84,43 +123,4 @@ mod tests {
     fn amount_above_allowed_range() {
         graph("2").unwrap();
     }
-}
-
-fn graph(amount: &str) -> Result<char> {
-    let amount = (amount.parse::<f64>()? * 8f64).round() as u32;
-
-    if amount > 8 {
-        return Err(Error::OutOfBounds);
-    };
-
-    if amount == 0 {
-        Ok(' ')
-    } else {
-        std::char::from_u32(0x2580u32 + amount).ok_or(Error::CharParse)
-    }
-}
-
-fn main() {
-    if let Err(e) = run() {
-        eprintln!("{}", e);
-        process::exit(1);
-    }
-}
-
-fn run() -> Result<()> {
-    let mut args = env::args();
-
-    // skip program name
-    args.next();
-
-    if let Some(arg) = args.next() {
-        match arg.as_str() {
-            "-h" | "-help" | "--help" | "--usage" => {
-                println!("Usage: vgraph [OPTION]... NUMBER");
-            }
-            _ => print!("{}", graph(&arg)?),
-        }
-    };
-
-    Ok(())
 }
