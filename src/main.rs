@@ -1,8 +1,8 @@
 use std::env;
-use std::process;
 use std::error;
 use std::fmt;
 use std::num;
+use std::process;
 
 #[derive(Debug)]
 enum Error {
