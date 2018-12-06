@@ -32,8 +32,7 @@ impl error::Error for Error {
 
     fn cause(&self) -> Option<&dyn error::Error> {
         match *self {
-            Error::CharParse => None,
-            Error::OutOfBounds => None,
+            Error::CharParse | Error::OutOfBounds => None,
             Error::ParseFloat(ref err) => Some(err),
         }
     }
