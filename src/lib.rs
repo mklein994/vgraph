@@ -12,30 +12,15 @@ pub enum Error {
 
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match *self {
+        match self {
             Error::CharParse => write!(f, "Could not parse amount as a char"),
-            Error::OutOfBounds => write!(f, "Value out of bounds"),
-            Error::ParseFloat(ref err) => err.fmt(f),
+            Error::OutOfBounds => write!(f, "Must be a decimal between 0.0 and 1.0 (inclusive)"),
+            Error::ParseFloat(err) => err.fmt(f),
         }
     }
 }
 
-impl error::Error for Error {
-    fn description(&self) -> &str {
-        match *self {
-            Error::CharParse => "Could not parse amount as a char",
-            Error::OutOfBounds => "Must be a floating point number between 0 and 1",
-            Error::ParseFloat(ref err) => err.description(),
-        }
-    }
-
-    fn cause(&self) -> Option<&dyn error::Error> {
-        match *self {
-            Error::CharParse | Error::OutOfBounds => None,
-            Error::ParseFloat(ref err) => Some(err),
-        }
-    }
-}
+impl error::Error for Error {}
 
 impl From<num::ParseFloatError> for Error {
     fn from(err: num::ParseFloatError) -> Self {
