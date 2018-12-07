@@ -30,20 +30,6 @@ impl From<num::ParseFloatError> for Error {
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-fn graph(arg: &str) -> Result<char> {
-    let amount = (arg.parse::<f64>()? * 8_f64).round() as u32;
-
-    if amount > 8 {
-        return Err(Error::OutOfBounds);
-    };
-
-    if amount == 0 {
-        Ok(' ')
-    } else {
-        std::char::from_u32(0x2580_u32 + amount).ok_or(Error::CharParse)
-    }
-}
-
 pub fn run() -> Result<()> {
     let mut args = env::args();
 
@@ -60,6 +46,20 @@ pub fn run() -> Result<()> {
     };
 
     Ok(())
+}
+
+fn graph(arg: &str) -> Result<char> {
+    let amount = (arg.parse::<f64>()? * 8_f64).round() as u32;
+
+    if amount > 8 {
+        return Err(Error::OutOfBounds);
+    };
+
+    if amount == 0 {
+        Ok(' ')
+    } else {
+        std::char::from_u32(0x2580_u32 + amount).ok_or(Error::CharParse)
+    }
 }
 
 #[cfg(test)]
