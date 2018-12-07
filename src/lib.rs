@@ -5,6 +5,8 @@ use std::env;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
+const USAGE: &str = concat!("Usage: ", env!("CARGO_PKG_NAME"), " NUMBER [NUMBER ...]");
+
 pub fn run() -> Result<()> {
     let mut args = env::args();
 
@@ -13,9 +15,7 @@ pub fn run() -> Result<()> {
 
     if let Some(arg) = args.next() {
         match arg.as_str() {
-            "-h" | "-help" | "--help" | "--usage" => {
-                println!("Usage: vgraph [OPTION]... NUMBER");
-            }
+            "-h" | "-help" | "--help" | "--usage" => println!("{}", USAGE),
             _ => print!("{}", graph(&arg)?),
         }
     };
