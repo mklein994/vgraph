@@ -5,14 +5,11 @@ pub mod app;
 mod error;
 
 use self::error::Error;
-use std::env;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-const USAGE: &str = concat!("Usage: ", env!("CARGO_PKG_NAME"), " NUMBER [NUMBER ...]");
-
 pub struct Config {
-    quiet: u64,
+    pub quiet: u64,
 }
 
 impl Default for Config {
@@ -22,7 +19,7 @@ impl Default for Config {
 }
 
 impl Config {
-    pub fn from_matches(m: clap::ArgMatches) -> Result<Self> {
+    pub fn from_matches(m: &clap::ArgMatches) -> Result<Self> {
         let quiet = match m.occurrences_of("quiet") {
             q @ 0...2 => q,
             _ => 2,
@@ -32,20 +29,12 @@ impl Config {
     }
 }
 
-pub fn run(config: Config) -> Result<()> {
-    let mut args = env::args();
-
-    // skip program name
-    args.next();
-
-    match args.next() {
-        Some(arg) => match arg.as_str() {
-            "-h" | "-help" | "--help" | "--usage" => println!("{}", USAGE),
-            _ => print!("{}", graph(&arg)?),
-        },
-        _ => println!("{}", USAGE),
+pub fn run(m: clap::ArgMatches) -> Result<()> {
+    if let Some(values) = m.values_of("number") {
+        for n in values {
+            print!("{}", graph(n)?);
+        }
     }
-
     Ok(())
 }
 

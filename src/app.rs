@@ -15,4 +15,5 @@ pub fn build_cli() -> App<'static, 'static> {
                      Pass twice to ensure a successful error code (0).",
                 ),
         )
+        .arg(Arg::with_name("number").multiple(true))
 }
