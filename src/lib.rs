@@ -13,11 +13,12 @@ pub fn run() -> Result<()> {
     // skip program name
     args.next();
 
-    if let Some(arg) = args.next() {
-        match arg.as_str() {
+    match args.next() {
+        Some(arg) => match arg.as_str() {
             "-h" | "-help" | "--help" | "--usage" => println!("{}", USAGE),
             _ => print!("{}", graph(&arg)?),
-        }
+        },
+        _ => println!("{}", USAGE),
     }
 
     Ok(())
