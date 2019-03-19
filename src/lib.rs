@@ -1,3 +1,7 @@
+#[macro_use]
+extern crate clap;
+
+pub mod app;
 mod error;
 
 use self::error::Error;
@@ -7,7 +11,28 @@ pub type Result<T> = std::result::Result<T, Error>;
 
 const USAGE: &str = concat!("Usage: ", env!("CARGO_PKG_NAME"), " NUMBER [NUMBER ...]");
 
-pub fn run() -> Result<()> {
+pub struct Config {
+    quiet: u64,
+}
+
+impl Default for Config {
+    fn default() -> Self {
+        Self { quiet: 0 }
+    }
+}
+
+impl Config {
+    pub fn from_matches(m: clap::ArgMatches) -> Result<Self> {
+        let quiet = match m.occurrences_of("quiet") {
+            q @ 0...2 => q,
+            _ => 2,
+        };
+
+        Ok(Config { quiet })
+    }
+}
+
+pub fn run(config: Config) -> Result<()> {
     let mut args = env::args();
 
     // skip program name
