@@ -18,7 +18,7 @@ pub fn run() -> Result<()> {
             "-h" | "-help" | "--help" | "--usage" => println!("{}", USAGE),
             _ => print!("{}", graph(&arg)?),
         }
-    };
+    }
 
     Ok(())
 }
@@ -28,7 +28,7 @@ fn graph(arg: &str) -> Result<char> {
 
     if amount > 8 {
         return Err(Error::OutOfBounds);
-    };
+    }
 
     if amount == 0 {
         Ok(' ')
