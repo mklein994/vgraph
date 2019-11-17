@@ -21,7 +21,7 @@ impl Default for Config {
 impl Config {
     pub fn from_matches(m: &clap::ArgMatches) -> Result<Self> {
         let quiet = match m.occurrences_of("quiet") {
-            q @ 0...2 => q,
+            q @ 0..=2 => q,
             _ => 2,
         };
 
