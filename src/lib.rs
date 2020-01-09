@@ -5,7 +5,7 @@ use std::env;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-const USAGE: &str = concat!("Usage: ", env!("CARGO_PKG_NAME"), " NUMBER [NUMBER ...]");
+const USAGE: &str = concat!("Usage: seq 10 | ", env!("CARGO_PKG_NAME"));
 
 pub fn run() -> Result<()> {
     let mut args = env::args();
