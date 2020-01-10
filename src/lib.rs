@@ -8,7 +8,7 @@ use std::io::{self, Read};
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-const PROGRAM: &str = concat!(
+const USAGE: &str = concat!(
     "Usage: ",
     env!("CARGO_PKG_NAME"),
     " [options] [--] [NUMBER...]"
@@ -25,7 +25,7 @@ pub fn run() -> Result<()> {
     let matches = opts.parse(&args[1..])?;
 
     if matches.opt_present("help") {
-        print!("{}", opts.usage(PROGRAM));
+        print!("{}", opts.usage(USAGE));
         return Ok(());
     }
 
