@@ -28,9 +28,10 @@ pub fn run() -> Result<()> {
         return Ok(());
     }
 
-    // Gather stdin if available, otherwise just an empty string.  If run in a pipe, stdin isn't
-    // available for the user to enter something with the keyboard for example.
-    let buf = if atty::isnt(Stream::Stdin) {
+    // Gather stdin if available, otherwise just an empty string. If run in a pipe, stdin
+    // isn't available for the user to enter something with the keyboard for example.
+    // Wait for input if no numbers were given though.
+    let buf = if atty::isnt(Stream::Stdin) || matches.free.len() == 0 {
         let mut stdin = io::stdin();
         let mut buf = String::new();
 
