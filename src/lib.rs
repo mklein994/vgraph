@@ -1,13 +1,18 @@
 mod error;
 
 use self::error::Error;
+use atty::Stream;
 use getopts::Options;
 use std::env;
 use std::io::{self, Read};
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-const PROGRAM: &str = concat!("Usage: ", env!("CARGO_PKG_NAME"), " [options] [NUMBER...]");
+const PROGRAM: &str = concat!(
+    "Usage: ",
+    env!("CARGO_PKG_NAME"),
+    " [options] [--] [NUMBER...]"
+);
 
 pub fn run() -> Result<()> {
     let args: Vec<String> = env::args().collect();
@@ -23,10 +28,17 @@ pub fn run() -> Result<()> {
         return Ok(());
     }
 
-    let mut stdin = io::stdin();
-    let mut buf = String::new();
+    // Gather stdin if available, otherwise just an empty string.  If run in a pipe, stdin isn't
+    // available for the user to enter something with the keyboard for example.
+    let buf = if atty::isnt(Stream::Stdin) {
+        let mut stdin = io::stdin();
+        let mut buf = String::new();
 
-    stdin.read_to_string(&mut buf)?;
+        stdin.read_to_string(&mut buf)?;
+        buf
+    } else {
+        String::new()
+    };
 
     // Using the free parameters provided on the command line first, convert that and each
     // line from stdin into a list of numbers.
