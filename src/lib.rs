@@ -20,6 +20,7 @@ pub fn run() -> Result<()> {
     let mut opts = Options::new();
     opts.optflag("h", "help", "print this help menu");
     opts.optflag("n", "no-newline", "don't print a trailing newline");
+    opts.optflag("w", "no-wait", "don't wait for stdin");
 
     let matches = opts.parse(&args[1..])?;
 
@@ -31,7 +32,9 @@ pub fn run() -> Result<()> {
     // Gather stdin if available, otherwise just an empty string. If run in a pipe, stdin
     // isn't available for the user to enter something with the keyboard for example.
     // Wait for input if no numbers were given though.
-    let buf = if atty::isnt(Stream::Stdin) || matches.free.len() == 0 {
+    let buf = if !matches.opt_present("no-wait")
+        && (atty::isnt(Stream::Stdin) || matches.free.len() == 0)
+    {
         let mut stdin = io::stdin();
         let mut buf = String::new();
 
