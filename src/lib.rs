@@ -21,11 +21,17 @@ pub fn run() -> Result<()> {
     opts.optflag("h", "help", "print this help menu");
     opts.optflag("n", "no-newline", "don't print a trailing newline");
     opts.optflag("w", "no-wait", "don't wait for stdin");
+    opts.optflag("V", "version", "show version information and exit");
 
     let matches = opts.parse(&args[1..])?;
 
     if matches.opt_present("help") {
         print!("{}", opts.usage(USAGE));
+        return Ok(());
+    }
+
+    if matches.opt_present("version") {
+        println!("{} {}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"));
         return Ok(());
     }
 
