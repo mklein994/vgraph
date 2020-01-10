@@ -5,4 +5,5 @@ authors = ["Matthew Klein <mklein994@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+atty = "0.2"
 getopts = "0.2"
