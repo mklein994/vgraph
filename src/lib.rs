@@ -1,35 +1,65 @@
 mod error;
 
 use self::error::Error;
+use getopts::Options;
 use std::env;
+use std::io::{self, Read};
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-const USAGE: &str = concat!("Usage: seq 10 | ", env!("CARGO_PKG_NAME"));
+const PROGRAM: &str = concat!("Usage: ", env!("CARGO_PKG_NAME"), " [options] [NUMBER...]");
 
 pub fn run() -> Result<()> {
-    let mut args = env::args();
+    let args: Vec<String> = env::args().collect();
 
-    // skip program name
-    args.next();
+    let mut opts = Options::new();
+    opts.optflag("h", "help", "print this help menu");
+    opts.optflag("n", "no-newline", "don't print a trailing newline");
 
-    match args.next() {
-        Some(arg) => match arg.as_str() {
-            "-h" | "-help" | "--help" | "--usage" => println!("{}", USAGE),
-            _ => print!("{}", graph(&arg)?),
-        },
-        _ => println!("{}", USAGE),
+    let matches = opts.parse(&args[1..])?;
+
+    if matches.opt_present("help") {
+        print!("{}", opts.usage(PROGRAM));
+        return Ok(());
+    }
+
+    let mut stdin = io::stdin();
+    let mut buf = String::new();
+
+    stdin.read_to_string(&mut buf)?;
+
+    // Using the free parameters provided on the command line first, convert that and each
+    // line from stdin into a list of numbers.
+    let numbers: Vec<f64> = buf
+        .lines()
+        .chain(matches.free.iter().map(String::as_str))
+        .filter_map(|x| x.parse().ok())
+        .collect();
+
+    // Find the highest and lowest values in the list
+    let (min, max) = numbers
+        .iter()
+        .fold((std::f64::MAX, std::f64::MIN), |(min, max), &x| {
+            (x.min(min), x.max(max))
+        });
+
+    for line in numbers.iter().map(|n| scale(min, max, *n)) {
+        print!("{}", graph(line)?);
+    }
+
+    if !matches.opt_present("no-newline") {
+        println!();
     }
 
     Ok(())
 }
 
-fn graph(arg: &str) -> Result<char> {
-    let amount = (arg.parse::<f64>()? * 8_f64).round() as u32;
+fn scale(min: f64, max: f64, n: f64) -> f64 {
+    (n - min) / (max - min)
+}
 
-    if amount > 8 {
-        return Err(Error::OutOfBounds);
-    }
+fn graph(n: f64) -> Result<char> {
+    let amount = (n * 8_f64).round() as u32;
 
     if amount == 0 {
         Ok(' ')
