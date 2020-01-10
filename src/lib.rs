@@ -33,7 +33,7 @@ pub fn run() -> Result<()> {
     // isn't available for the user to enter something with the keyboard for example.
     // Wait for input if no numbers were given though.
     let buf = if !matches.opt_present("no-wait")
-        && (atty::isnt(Stream::Stdin) || matches.free.len() == 0)
+        && (atty::isnt(Stream::Stdin) || matches.free.is_empty())
     {
         let mut stdin = io::stdin();
         let mut buf = String::new();
@@ -46,18 +46,27 @@ pub fn run() -> Result<()> {
 
     // Using the free parameters provided on the command line first, convert that and each
     // line from stdin into a list of numbers.
-    let numbers: Vec<f64> = buf
-        .lines()
-        .chain(matches.free.iter().map(String::as_str))
+    let numbers: Vec<f64> = matches
+        .free
+        .iter()
+        .map(String::as_str)
+        .chain(buf.lines())
         .filter_map(|x| x.parse().ok())
         .collect();
 
     // Find the highest and lowest values in the list
-    let (min, max) = numbers
-        .iter()
-        .fold((std::f64::MAX, std::f64::MIN), |(min, max), &x| {
-            (x.min(min), x.max(max))
-        });
+    let (min, max) = if numbers.len() == 1 {
+        if numbers[0] > 1_f64 || numbers[0] < 0_f64 {
+            return Err(Error::OutOfBounds);
+        }
+        (0_f64, 1_f64)
+    } else {
+        numbers
+            .iter()
+            .fold((std::f64::MAX, std::f64::MIN), |(min, max), &x| {
+                (x.min(min), x.max(max))
+            })
+    };
 
     for line in numbers.iter().map(|n| scale(min, max, *n)) {
         print!("{}", graph(line)?);
