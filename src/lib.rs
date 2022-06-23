@@ -111,36 +111,36 @@ mod tests {
 
     #[test]
     fn test_graph() {
-        assert_eq!(BARS[0], graph("0").unwrap());
-        assert_eq!(BARS[1], graph("0.125").unwrap());
-        assert_eq!(BARS[2], graph("0.25").unwrap());
-        assert_eq!(BARS[3], graph("0.375").unwrap());
-        assert_eq!(BARS[4], graph("0.5").unwrap());
-        assert_eq!(BARS[5], graph("0.625").unwrap());
-        assert_eq!(BARS[6], graph("0.75").unwrap());
-        assert_eq!(BARS[7], graph("0.875").unwrap());
-        assert_eq!(BARS[8], graph("1").unwrap());
+        assert_eq!(BARS[0], graph(0.0).unwrap());
+        assert_eq!(BARS[1], graph(0.125).unwrap());
+        assert_eq!(BARS[2], graph(0.25).unwrap());
+        assert_eq!(BARS[3], graph(0.375).unwrap());
+        assert_eq!(BARS[4], graph(0.5).unwrap());
+        assert_eq!(BARS[5], graph(0.625).unwrap());
+        assert_eq!(BARS[6], graph(0.75).unwrap());
+        assert_eq!(BARS[7], graph(0.875).unwrap());
+        assert_eq!(BARS[8], graph(1.0).unwrap());
     }
 
     #[test]
     fn amount_very_close_to_zero() {
-        assert_eq!(BARS[0], graph("0.014705882352941176").unwrap());
+        assert_eq!(BARS[0], graph(0.014705882352941176).unwrap());
     }
 
     #[test]
     fn amount_very_close_to_one() {
-        assert_eq!(BARS[8], graph("0.985294117647058824").unwrap());
+        assert_eq!(BARS[8], graph(0.985294117647058824).unwrap());
     }
 
     #[test]
     #[should_panic]
     fn amount_below_allowed_range() {
-        graph("-1").unwrap();
+        graph(-1.0).unwrap();
     }
 
     #[test]
     #[should_panic]
     fn amount_above_allowed_range() {
-        graph("2").unwrap();
+        graph(2.0).unwrap();
     }
 }
