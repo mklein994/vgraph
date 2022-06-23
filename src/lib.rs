@@ -14,19 +14,24 @@ const USAGE: &str = concat!(
     " [options] [--] [NUMBER...]"
 );
 
-pub fn run() -> Result<()> {
-    let args: Vec<String> = env::args().collect();
-
+#[must_use]
+pub fn get_opts() -> Options {
     let mut opts = Options::new();
-    opts.optflag("h", "help", "print this help menu");
-    opts.optflag("n", "no-newline", "don't print a trailing newline");
-    opts.optflag("w", "no-wait", "don't wait for stdin");
-    opts.optflag("V", "version", "show version information and exit");
+    opts.parsing_style(getopts::ParsingStyle::StopAtFirstFree)
+        .optflag("h", "help", "print this help menu")
+        .optflag("n", "no-newline", "don't print a trailing newline")
+        .optflag("w", "no-wait", "don't wait for stdin")
+        .optflag("V", "version", "show version information and exit");
+    opts
+}
 
-    let matches = opts.parse(&args[1..])?;
+pub fn run() -> Result<()> {
+    let opts = get_opts();
+
+    let matches = opts.parse(env::args().skip(1))?;
 
     if matches.opt_present("help") {
-        print!("{}", opts.usage(USAGE));
+        println!("{}", opts.usage(USAGE));
         return Ok(());
     }
 
