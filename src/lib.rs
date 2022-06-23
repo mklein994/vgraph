@@ -21,10 +21,11 @@ pub fn get_opts() -> Options {
         .optflag("h", "help", "print this help menu")
         .optflag("n", "no-newline", "don't print a trailing newline")
         .optflag("w", "no-wait", "don't wait for stdin")
-        .optflag(
+        .optflagopt(
             "f",
             "fixed",
-            "Plot without scaling. Errors out if values are less than 0.0 or greater than 1.0.",
+            "The range (inclusive) that the values are expected to fit in. Defaults to '0.0,1.0'",
+            "<MINIMUM,MAXIMUM>",
         )
         .optflag("V", "version", "show version information and exit");
     opts
@@ -37,6 +38,19 @@ pub fn run() -> Result<()> {
 
     if matches.opt_present("help") {
         println!("{}", opts.usage(USAGE));
+        println!(
+            r#"Examples:
+    $ seq 10 | {name}
+     ▁▂▃▄▄▅▆▇█
+
+    $ {name} 1 2 3
+     ▄█
+
+    $ seq 0.0 0.1 1.0 | {name}
+     ▁▂▂▃▄▅▆▆▇█
+"#,
+            name = env!("CARGO_PKG_NAME")
+        );
         return Ok(());
     }
 
@@ -46,7 +60,16 @@ pub fn run() -> Result<()> {
     }
 
     if matches.opt_present("fixed") {
-        graph::fixed()?;
+        match matches.opt_default("fixed", "0.0,1.0") {
+            Some(minmax) => {
+                let (min, max) = {
+                    let (min, max) = minmax.split_once(',').ok_or(Error::InvalidMinMax)?;
+                    (min.parse::<f64>()?, max.parse::<f64>()?)
+                };
+                graph::fixed_at(min, max)?;
+            }
+            None => graph::fixed()?,
+        };
     } else {
         graph::scaled(&matches)?;
     }

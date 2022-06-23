@@ -9,6 +9,7 @@ pub enum Error {
     Getopts(getopts::Fail),
     Io(io::Error),
     OutOfBounds,
+    InvalidMinMax,
     ParseFloat(num::ParseFloatError),
 }
 
@@ -19,6 +20,10 @@ impl fmt::Display for Error {
             Error::Getopts(err) => err.fmt(f),
             Error::Io(err) => err.fmt(f),
             Error::OutOfBounds => write!(f, "Values must be between 0.0 and 1.0 (inclusive)"),
+            Error::InvalidMinMax => write!(
+                f,
+                "--fixed, -f must be in the format <min>,<max> e.g. '--fixed 0.0,1.0'"
+            ),
             Error::ParseFloat(err) => err.fmt(f),
         }
     }

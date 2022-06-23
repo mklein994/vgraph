@@ -66,3 +66,18 @@ pub fn fixed() -> Result<(), Error> {
     }
     Ok(())
 }
+
+pub fn fixed_at(min: f64, max: f64) -> Result<(), Error> {
+    let stdin = std::io::stdin();
+
+    let mut line = String::new();
+
+    while stdin.read_line(&mut line)? > 0 {
+        let number: f64 = crate::scale(min, max, line.trim().parse()?);
+        let graph = crate::graph(number)?;
+        print!("{graph}");
+        line = String::new();
+    }
+
+    Ok(())
+}
