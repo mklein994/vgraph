@@ -74,7 +74,7 @@ pub fn run() -> Result<()> {
             })
     };
 
-    for line in numbers.iter().map(|n| scale(min, max, *n)) {
+    for line in numbers.into_iter().map(|n| scale(min, max, n)) {
         print!("{}", graph(line)?);
     }
 
