@@ -18,7 +18,7 @@ impl fmt::Display for Error {
             Error::CharParse => write!(f, "Could not parse amount as a char"),
             Error::Getopts(err) => err.fmt(f),
             Error::Io(err) => err.fmt(f),
-            Error::OutOfBounds => write!(f, "When given a single argument, it must be a decimal between 0.0 and 1.0 (inclusive)"),
+            Error::OutOfBounds => write!(f, "Values must be between 0.0 and 1.0 (inclusive)"),
             Error::ParseFloat(err) => err.fmt(f),
         }
     }

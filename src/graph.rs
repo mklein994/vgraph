@@ -1,8 +1,11 @@
 use crate::Error;
 use atty::Stream;
-use std::io::{self, Read};
+use std::io;
+// use std::io::{self, BufRead, Read};
 
 pub fn scaled(matches: &getopts::Matches) -> Result<(), Error> {
+    use std::io::Read;
+
     // Gather stdin if available, otherwise just an empty string. If run in a pipe, stdin
     // isn't available for the user to enter something with the keyboard for example.
     // Wait for input if no numbers were given though.
@@ -46,5 +49,20 @@ pub fn scaled(matches: &getopts::Matches) -> Result<(), Error> {
         print!("{}", crate::graph(line)?);
     }
 
+    Ok(())
+}
+
+/// Requires input to be exactly within this interval: [0.0, 1.0].
+pub fn fixed() -> Result<(), Error> {
+    let stdin = std::io::stdin();
+    // let mut stdout = std::io::stdout();
+    let mut line = String::new();
+
+    while stdin.read_line(&mut line)? > 0 {
+        let number: f64 = line.trim().parse()?;
+        let graph = crate::graph(number)?;
+        print!("{graph}");
+        line = String::new();
+    }
     Ok(())
 }

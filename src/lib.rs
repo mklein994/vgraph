@@ -21,6 +21,11 @@ pub fn get_opts() -> Options {
         .optflag("h", "help", "print this help menu")
         .optflag("n", "no-newline", "don't print a trailing newline")
         .optflag("w", "no-wait", "don't wait for stdin")
+        .optflag(
+            "f",
+            "fixed",
+            "Plot without scaling. Errors out if values are less than 0.0 or greater than 1.0.",
+        )
         .optflag("V", "version", "show version information and exit");
     opts
 }
@@ -40,7 +45,11 @@ pub fn run() -> Result<()> {
         return Ok(());
     }
 
-    graph::scaled(&matches)?;
+    if matches.opt_present("fixed") {
+        graph::fixed()?;
+    } else {
+        graph::scaled(&matches)?;
+    }
 
     if !matches.opt_present("no-newline") {
         println!();
@@ -54,6 +63,10 @@ fn scale(min: f64, max: f64, n: f64) -> f64 {
 }
 
 fn graph(n: f64) -> Result<char> {
+    if !(0.0..=1.0).contains(&n) {
+        return Err(Error::OutOfBounds);
+    }
+
     let amount = (n * 8_f64).round() as u32;
 
     if amount == 0 {
